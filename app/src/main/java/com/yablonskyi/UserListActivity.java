@@ -51,7 +51,6 @@ public class UserListActivity extends AppCompatActivity {
             fullName = surname + " " + name;
             usersMap.put(fullName, phone);
         }
-
         Iterator it = usersMap.entrySet().iterator();
         while (it.hasNext()) {
             HashMap<String, String> resultsMap = new HashMap<>();

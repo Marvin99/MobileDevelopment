@@ -86,8 +86,8 @@
         android:backgroundTint="#acffa9"
         android:text="@string/buttomShowList"
         android:textAlignment="center"
-        android:textColor="@android:color/background_light"
         android:textStyle="bold"
+        android:textColor="@android:color/background_light"
         tools:layout_editor_absoluteX="117dp"
         tools:layout_editor_absoluteY="216dp" />
 
