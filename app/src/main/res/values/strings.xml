@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Mobile Development</string>
+    <string name="inputFirstName">Enter your First Name</string>
+    <string name="inputLastName">Enter your Last Name</string>
+    <string name="inputEmail">Enter correct email</string>
+    <string name="inputPhone">Enter correct number</string>
+    <string name="inputPassword">Enter Password</string>
+    <string name="inputConfirmation">Password do not match</string>
+
+
 </resources>
