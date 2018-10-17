@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,9 @@ import android.widget.Toast;
 import com.basgeekball.awesomevalidation.AwesomeValidation;
 import com.basgeekball.awesomevalidation.ValidationStyle;
 import com.basgeekball.awesomevalidation.utility.RegexTemplate;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     public EditText inputPhone;
     public EditText inputEmail;
     public AwesomeValidation inputValidation;
+    private ArrayList<User> userList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setupUI();
         validateUI();
         checkUI();
+        userList = new ArrayList<>();
     }
 
     private void setupUI() {
@@ -68,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 RegexTemplate.TELEPHONE, R.string.inputPhone);
     }
 
+
     private void checkUI() {
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,15 +91,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveInfo() {
-        SharedPreferences sharedPref = getSharedPreferences("usersInfo", Context.MODE_PRIVATE);
+        User user = new User(inputLastName.getText().toString(),
+                inputFirstName.getText().toString(),
+                inputPhone.getText().toString());
+        userList.add(user);
+        Gson gson = new Gson();
+        String json = gson.toJson(userList);
+        Log.i("Users", json);
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
+                "UsersList", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        int count = sharedPref.getAll().size() + 1;
-
-        final Set<String> user = new HashSet<>();
-        user.add("name: " + inputFirstName.getText().toString());
-        user.add("surname: " + inputLastName.getText().toString());
-        user.add("phone: " + inputPhone.getText().toString());
-        editor.putStringSet("user" + count, user);
+        editor.putString("UsersList", json);
         editor.apply();
     }
 }

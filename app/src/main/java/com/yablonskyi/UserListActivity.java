@@ -4,8 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,50 +22,33 @@ import java.util.Set;
 
 public class UserListActivity extends AppCompatActivity {
 
+    private ListView listView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userlist);
-        displayData();
+
+        showList();
     }
 
-    private void displayData() {
-        ListView list = findViewById(R.id.users_list);
-        SharedPreferences sharedPref = getSharedPreferences("usersInfo", Context.MODE_PRIVATE);
+    private void showList(){
+        Gson gson = new Gson();
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
+                "UsersList", Context.MODE_PRIVATE);
+        String jsonPreferences = sharedPref.getString("UsersList", "");
+        Log.i("Users", jsonPreferences);
 
-        HashMap<String, String> usersMap = new HashMap<>();
-        List<HashMap<String, String>> listItems = new ArrayList<>();
-        SimpleAdapter adapter = new SimpleAdapter(this, listItems, R.layout.list_item,
-                new String[]{"First Line", "Second Line"}, new int[]{R.id.full_name, R.id.phone});
+        Type type = new TypeToken<List<User>>() {}.getType();
+        List<User> usersFromShared = gson.fromJson(jsonPreferences, type);
+        Log.i("Users", usersFromShared.toString());
 
-        Set<String> user;
-        for (int i = 1; i < sharedPref.getAll().size() + 1; i++) {
-            user = sharedPref.getStringSet("user" + i, null);
-            assert user != null;
-            ArrayList<String> userInfo = new ArrayList<>(user);
-            String fullName, surname = "", name = "", phone = "";
+        listView = findViewById(R.id.users_list);
+        ArrayAdapter<User> arrayAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                usersFromShared);
 
-            for (int j = 0; j < userInfo.size(); j++) {
-                String info = userInfo.get(j);
-                if (info.contains("surname: ")) {
-                    surname = info.split("surname: ")[1];
-                } else if (info.contains("name: ")) {
-                    name = info.split("name: ")[1];
-                } else {
-                    phone = info.split("phone: ")[1];
-                }
-            }
-            fullName = surname + " " + name;
-            usersMap.put(fullName, phone);
-        }
-        Iterator it = usersMap.entrySet().iterator();
-        while (it.hasNext()) {
-            HashMap<String, String> resultsMap = new HashMap<>();
-            HashMap.Entry pair = (Map.Entry) it.next();
-            resultsMap.put("First Line", pair.getKey().toString());
-            resultsMap.put("Second Line", pair.getValue().toString());
-            listItems.add(resultsMap);
-        }
-        list.setAdapter(adapter);
+        listView.setAdapter(arrayAdapter);
     }
 }
