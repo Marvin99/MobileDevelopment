@@ -22,8 +22,6 @@ import java.util.Set;
 
 public class UserListActivity extends AppCompatActivity {
 
-    private ListView listView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +41,7 @@ public class UserListActivity extends AppCompatActivity {
         List<User> usersFromShared = gson.fromJson(jsonPreferences, type);
         Log.i("Users", usersFromShared.toString());
 
-        listView = findViewById(R.id.users_list);
+        ListView listView = findViewById(R.id.users_list);
         ArrayAdapter<User> arrayAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_list_item_1,
