@@ -6,6 +6,18 @@
     <string name="inputPhone">Enter correct number</string>
     <string name="inputPassword">Enter Password</string>
     <string name="inputConfirmation">Password do not match</string>
+    <string name="inputfn">Input your first name</string>
+    <string name="inputln">Input your last name</string>
+    <string name="inputpn">Input your phone number</string>
+    <string name="inputem">Input your email</string>
+    <string name="buttomSubmit">Submit</string>
+    <string name="buttomShowList">Show list</string>
+
+
+
+
+
+
 
 
 </resources>
