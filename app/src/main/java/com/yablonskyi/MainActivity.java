@@ -1,107 +1,105 @@
 package com.yablonskyi;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.InputType;
+import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-import com.basgeekball.awesomevalidation.AwesomeValidation;
-import com.basgeekball.awesomevalidation.ValidationStyle;
-import com.basgeekball.awesomevalidation.utility.RegexTemplate;
-import com.google.gson.Gson;
+import android.widget.ImageView;
+
+import com.yablonskyi.adapter.PixabayAdapter;
+import com.yablonskyi.interfaces.PixabayAPI;
+import com.yablonskyi.model.Hit;
+import com.yablonskyi.model.PhotoList;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    public Button buttonSubmit;
-    public Button buttonShowList;
-    public EditText inputFirstName;
-    public EditText inputLastName;
-    public EditText inputPhone;
-    public EditText inputEmail;
-    public AwesomeValidation inputValidation;
-    private ArrayList<User> userList;
-
+    @BindView(R.id.list_photos) RecyclerView recyclerView;
+    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.no_data) ImageView noData;
+    private final static String BASE_URL = "https://pixabay.com/api/";
+    PixabayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        callRetrofit();
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
+        swipeContainer.setColorSchemeResources(R.color.colorPrimaryDark);
 
-        inputValidation = new AwesomeValidation(ValidationStyle.BASIC);
-        setupUI();
-        validateUI();
-        checkUI();
-        userList = new ArrayList<>();
     }
 
-    private void setupUI() {
-        inputFirstName = findViewById(R.id.inputFirstName);
-        inputLastName = findViewById(R.id.inputLastName);
-        inputEmail = findViewById(R.id.inputEmail);
-        inputEmail.setInputType(InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        inputPhone = findViewById(R.id.inputPhone);
-        buttonSubmit = findViewById(R.id.buttonSubmit);
-        buttonShowList = findViewById(R.id.buttonShowList);
-        buttonShowList.setOnClickListener(new View.OnClickListener() {
+    public void callRetrofit(){
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(1, TimeUnit.SECONDS)
+                .writeTimeout(1, TimeUnit.SECONDS)
+                .build();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        PixabayAPI pixabayAPI = retrofit.create(PixabayAPI.class);
+        Call<PhotoList> call = pixabayAPI.getData();
+        call.enqueue(new Callback<PhotoList>() {
             @Override
-            public void onClick(View view) {
-                Intent openListActivity = new Intent(MainActivity.this,
-                        UserListActivity.class);
-                startActivity(openListActivity);
+            public void onResponse(@NonNull Call<PhotoList> call,
+                                   @NonNull Response<PhotoList> response) {
+                Log.d("tag", call.toString());
+                Log.d("onResponse", "ServerResponse: " + response.toString());
+                if (response.isSuccessful()){
+                    noData.setVisibility(View.GONE);
+                    PhotoList photoList = response.body();
+                    ArrayList<Hit> hits = Objects.requireNonNull(photoList).getHits();
+                    drawData(hits);
+                } else {
+                    Log.i("data", "no data");
+                    noData.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PhotoList> call, @NonNull Throwable t) {
+                Log.e("onFailure", t.getMessage());
+                noData.setVisibility(View.VISIBLE);
             }
         });
     }
 
-    private void validateUI() {
-        inputValidation.addValidation(MainActivity.this, R.id.inputFirstName,
-                "[a-zA-Z\\s]+", R.string.inputFirstName);
-        inputValidation.addValidation(MainActivity.this, R.id.inputLastName,
-                "[a-zA-Z\\s]+", R.string.inputLastName);
-        inputValidation.addValidation(MainActivity.this, R.id.inputEmail,
-                Patterns.EMAIL_ADDRESS, R.string.inputEmail);
-        inputValidation.addValidation(MainActivity.this, R.id.inputPhone,
-                RegexTemplate.TELEPHONE, R.string.inputPhone);
+    public void drawData(ArrayList<Hit> data){
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new PixabayAdapter(data);
+        recyclerView.setAdapter(adapter);
     }
 
-
-    private void checkUI() {
-        buttonSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               if (inputValidation.validate()){
-                   Toast.makeText(MainActivity.this, "Yeah boii", Toast.LENGTH_SHORT).show();
-                   saveInfo();
-               } else {
-                   Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-               }
-            }
-        });
-    }
-
-    private void saveInfo() {
-        User user = new User(inputLastName.getText().toString(),
-                inputFirstName.getText().toString(),
-                inputPhone.getText().toString());
-        userList.add(user);
-        Gson gson = new Gson();
-        String json = gson.toJson(userList);
-        Log.i("Users", json);
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(
-                "UsersList", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("UsersList", json);
-        editor.apply();
+    public void refresh() {
+        adapter.clear();
+        callRetrofit();
+        swipeContainer.setRefreshing(false);
     }
 }

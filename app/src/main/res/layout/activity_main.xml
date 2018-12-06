@@ -1,94 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/inputFirstName"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="26dp"
-        android:hint="@string/inputfn"
-        android:inputType="textCapWords"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="149dp" />
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/inputLastName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/inputFirstName"
-        android:layout_marginTop="97dp"
-        android:layout_marginEnd="20dp"
-        android:hint="@string/inputln"
-        android:inputType="textCapWords"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="149dp" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/inputPhone"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/inputFirstName"
-        android:layout_marginTop="165dp"
-        android:layout_marginEnd="20dp"
-        android:inputType="phone"
-        android:hint="@string/inputpn"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="149dp" />
+            <ImageView
+                android:id="@+id/no_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="100dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/no_data"
+                android:contentDescription="@string/no_data" />
+        </FrameLayout>
 
-    <EditText
-        android:id="@+id/inputEmail"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignStart="@+id/inputFirstName"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="97dp"
-        android:layout_marginEnd="20dp"
-        android:inputType="textEmailAddress"
-        android:hint="@string/inputem"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="149dp" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list_photos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical">
+        </android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
 
-    <Button
-        android:id="@+id/buttonSubmit"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:onClick="validateUI"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/inputFirstName"
-        android:layout_marginBottom="21dp"
-        android:text="@string/buttomSubmit"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="117dp"
-        tools:layout_editor_absoluteY="216dp" />
-
-    <Button
-        android:id="@+id/buttonShowList"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/buttonSubmit"
-        android:layout_marginEnd="30dp"
-        android:backgroundTint="#acffa9"
-        android:text="@string/buttomShowList"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        android:textColor="@android:color/background_light"
-        tools:layout_editor_absoluteX="117dp"
-        tools:layout_editor_absoluteY="216dp" />
-
-</RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
